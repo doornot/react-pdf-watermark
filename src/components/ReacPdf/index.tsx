@@ -1,11 +1,12 @@
-import React, { useEffect, useRef } from "react";
-import { degrees, PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { useEffect, useRef } from 'react';
+import { degrees, PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
 type PdfProps = {
   url?: string;
+  waterMarkTxt?: string;
 };
 
-function ReactPdf({ url = "/programacion.pdf" }: PdfProps) {
+function ReactPdf({ url = '/programacion.pdf', waterMarkTxt = 'cbndata' }: PdfProps) {
   const viewer = useRef(null);
 
   async function modifyPdf() {
@@ -17,17 +18,24 @@ function ReactPdf({ url = "/programacion.pdf" }: PdfProps) {
     const pages = pdfDoc.getPages();
     pages.forEach((page) => {
       const { width, height } = page.getSize();
-      page.drawText("Marca de Agua", {
-        x: width / 3,
-        y: height / 2 + 100,
-        size: 50,
-        font: helveticaFont,
-        color: rgb(0.95, 0.1, 0.1),
-        rotate: degrees(-45),
-      });
+      // TODO: 动态水印间隔(160 100)
+      for (let i = 30; i < width; i += 160) {
+        for (let j = 30; j < height; j += 100) {
+          page.drawText(waterMarkTxt, {
+            x: i,
+            y: j,
+            size: 20,
+            font: helveticaFont,
+            color: rgb(0.5, 0.5, 0.5),
+            rotate: degrees(20),
+            opacity: 0.2
+          });
+        }
+      }
     });
     const pdfBytes = await pdfDoc.saveAsBase64({ dataUri: true });
-    document.getElementById("pdf").src = pdfBytes;
+    // @ts-ignore
+    document.getElementById('pdf').src = pdfBytes;
   }
 
   useEffect(() => {
@@ -36,11 +44,7 @@ function ReactPdf({ url = "/programacion.pdf" }: PdfProps) {
 
   return (
     <div>
-      <iframe
-        id="pdf"
-        ref={viewer}
-        style={{ width: "100vw", height: "100vh" }}
-      ></iframe>
+      <iframe id='pdf' ref={viewer} style={{ width: '100vw', height: '100vh' }}></iframe>
     </div>
   );
 }

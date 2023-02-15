@@ -7,12 +7,12 @@ function App() {
 
   return (
     <div className="App">
-      <PDFWatermark
+      {/* <PDFWatermark
         textHeader="Documento de Prueba"
         textWatermark="Marca de agua"
         pdfURL="/programacion.pdf"
-      />
-      {/* <ReactPdf /> */}
+      /> */}
+      <ReactPdf />
     </div>
   );
 }
