@@ -9,7 +9,8 @@ function App() {
     <div className="App">
       {/* <PDFWatermark
         textHeader="Documento de Prueba"
-        textWatermark="Marca de agua"
+        textWatermark="上海欢迎你"
+        // textWatermark="Marca de agua"
         pdfURL="/programacion.pdf"
       /> */}
       <ReactPdf />

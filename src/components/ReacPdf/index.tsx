@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import fontkit from '@pdf-lib/fontkit';
 import { degrees, PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
 type PdfProps = {
@@ -15,21 +16,48 @@ function ReactPdf({ url = '/programacion.pdf', waterMarkTxt = 'cbndata' }: PdfPr
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
+    // 加载自定义字体
+    const fontBytes = await fetch('/SourceHanSansCN-Regular.ttf').then((res) => res.arrayBuffer());
+
+    // 自定义字体挂载
+    pdfDoc.registerFontkit(fontkit);
+    const customFont = await pdfDoc.embedFont(fontBytes);
+
+    const txt1 = "杭州阿里巴巴有限公司"
+    const txt2 = '17666666666';
+    const fontSize = 15
+    const xPadding = Math.max(txt1.length, txt2.length) * fontSize + 20
+    const yPadding = 120
+    const xStart = 50
+    const yStart = 50
     const pages = pdfDoc.getPages();
     pages.forEach((page) => {
       const { width, height } = page.getSize();
-      // TODO: 动态水印间隔(160 100)
-      for (let i = 30; i < width; i += 160) {
-        for (let j = 30; j < height; j += 100) {
-          page.drawText(waterMarkTxt, {
-            x: i,
-            y: j,
-            size: 20,
-            font: helveticaFont,
-            color: rgb(0.5, 0.5, 0.5),
-            rotate: degrees(20),
-            opacity: 0.2
-          });
+      let flag = 0;
+      for (let i = xStart; i < width - xStart; i += xPadding) {
+        for (let j = yStart; j < height - yStart; j += yPadding) {
+          flag += 1;
+          if (flag % 2 === 0) {
+            page.drawText(txt1, {
+              x: i,
+              y: j,
+              size: fontSize,
+              font: customFont,
+              color: rgb(0.5, 0.5, 0.5),
+              rotate: degrees(20),
+              opacity: 0.2
+            });
+          } else {
+            page.drawText(txt2, {
+              x: i,
+              y: j,
+              size: fontSize,
+              font: helveticaFont,
+              color: rgb(0.5, 0.5, 0.5),
+              rotate: degrees(20),
+              opacity: 0.2
+            });
+          }
         }
       }
     });
